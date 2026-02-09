@@ -2,33 +2,36 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Psr\Log\LoggerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class HelloController extends AbstractController
 {
-    protected $logger;
-    private $title = "Hello ";
+    protected LoggerInterface $logger;
+    private string $title = 'Hello ';
 
-    /*
-     * @Route("/hello", name="hello")
-     */
-
-    /**
-     * @param $logger
-     */
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
 
-    public function test($name)
+    #[Route(
+        '/test/{name}',
+        name: 'test',
+        methods: ['GET', 'POST'],
+        host: 'localhost',
+        schemes: ['http', 'https'],
+        defaults: ['name' => 'world']
+    )]
+    public function test(string $name): Response
     {
         $this->title .= $name;
 
         return $this->render(
-            'View/item/hello.html.twig',
-            ['title' => $this->title]
+            view: 'View/item/hello.html.twig',
+            parameters: ['title' => $this->title]
         );
     }
 }

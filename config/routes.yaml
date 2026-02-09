@@ -1,3 +1,9 @@
-index:
-    path: /
-    controller: App\Controller\IndexController::index
+# Routes déclarées par attributs dans les controllers
+controllers:
+  resource: ../src/Controller/
+  type: attribute
+
+# Exemple pédagogique (non utilisé)
+#index:
+#  path: /
+#  controller: App\Controller\IndexController::index
