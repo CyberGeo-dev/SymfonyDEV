@@ -7,6 +7,9 @@
     {# Bootswatch Flatly – Bootstrap 5 #}
     <link rel="stylesheet" href="https://bootswatch.com/5/flatly/bootstrap.min.css">
 
+    {# CSS login exo4 #}
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
+
     {% block stylesheets %}{% endblock %}
 </head>
 
@@ -56,10 +59,43 @@
                 </li>
             </ul>
 
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search">
-                <button class="btn btn-secondary" type="submit">Search</button>
-            </form>
+            {# MENU LOGIN - EXO 4.1 #}
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle btn btn-outline-light px-3"
+                       href="#"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Login
+                    </a>
+
+                    <div class="dropdown-menu dropdown-menu-end p-3">
+                        <form method="post" action="{{ path('login') }}">
+                        <div class="mb-2">
+                                <input class="form-control form-control-sm"
+                                       type="text"
+                                       name="username"
+                                       placeholder="username"
+                                       required>
+                            </div>
+
+                            <div class="mb-3">
+                                <input class="form-control form-control-sm"
+                                       type="password"
+                                       name="password"
+                                       placeholder="Password"
+                                       required>
+                            </div>
+
+                            <button class="btn btn-primary w-100" type="submit">
+                                Login
+                            </button>
+                        </form>
+                    </div>
+                </li>
+            </ul>
+
         </div>
     </div>
 </nav>
@@ -68,7 +104,7 @@
     {% block body %}{% endblock %}
 </main>
 
-{# Bootstrap JS – requis pour dropdown / burger #}
+{# Bootstrap JS – requis pour dropdown / burger (Bootstrap 5) #}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 {% block javascripts %}{% endblock %}
