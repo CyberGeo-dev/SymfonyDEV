@@ -24,7 +24,7 @@ class Users
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Role $relation = null;
+    private ?Role $role = null;
 
     public function getId(): ?int
     {
@@ -39,7 +39,6 @@ class Users
     public function setUsername(string $username): static
     {
         $this->username = $username;
-
         return $this;
     }
 
@@ -51,7 +50,6 @@ class Users
     public function setPassword(string $password): static
     {
         $this->password = $password;
-
         return $this;
     }
 
@@ -63,19 +61,17 @@ class Users
     public function setMail(?string $mail): static
     {
         $this->mail = $mail;
-
         return $this;
     }
 
-    public function getRelation(): ?Role
+    public function getRole(): ?Role
     {
-        return $this->relation;
+        return $this->role;
     }
 
-    public function setRelation(?Role $relation): static
+    public function setRole(?Role $role): static
     {
-        $this->relation = $relation;
-
+        $this->role = $role;
         return $this;
     }
 }

@@ -41,7 +41,7 @@ class LoginController extends AbstractController
 
                 // SESSION FILTER (comme syllabus)
                 $session->set('filter', [
-                    'idRole'   => $user->getRelation()->getId(),
+                    'idRole'   => $user->getRole()->getId(),
                     'username' => $user->getUsername(),
                     'idUser'   => $user->getId(),
                 ]);

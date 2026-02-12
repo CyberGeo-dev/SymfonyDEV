@@ -15,7 +15,6 @@
 
 <body>
 
-{# ===== SESSION ===== #}
 {% set filter = app.session.get('filter') %}
 
 {% if filter != null %}
@@ -61,7 +60,7 @@
 
                         {% if idRole is defined and idRole == 1 %}
                             <li>
-                                <a class="dropdown-item" href="{{ path('index') }}">
+                                <a class="dropdown-item" href="{{ path('account') }}">
                                     Créer un utilisateur
                                 </a>
                             </li>
@@ -75,7 +74,6 @@
                 </li>
             </ul>
 
-            {# ===== LOGIN / USER ===== #}
             <ul class="navbar-nav ms-auto">
 
                 {% if username is not defined %}
@@ -126,7 +124,8 @@
 
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item"
+                                   href="{{ path('account-edit', {'id': idUser}) }}">
                                     Mon compte
                                 </a>
                             </li>
