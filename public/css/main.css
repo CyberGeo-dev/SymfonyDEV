@@ -1,0 +1,60 @@
+.form-control.form-control-unstyled {
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+}
+
+.form-check.form-check-inline {
+    margin-bottom: 0;
+    margin-top: 0.2rem;
+}
+
+/* erreurs Symfony */
+.invalid-feedback {
+    display: block;
+    margin-top: 0.25rem;
+}
+
+.invalid-feedback span {
+    display: block;
+    line-height: 1.2;
+}
+
+/* badge ERROR */
+.invalid-feedback span::before {
+    content: "ERROR";
+    display: inline-block;
+    background: #dc3545;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.35rem;
+    border-radius: 0.2rem;
+    margin-right: 0.35rem;
+    vertical-align: middle;
+}
+
+/* rectangles rouges custom (divs d'erreur JS) */
+.form-error-box {
+    background: #dc3545;
+    color: #fff;
+    border-radius: 0.2rem;
+    padding: 0.35rem 0.6rem;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* --------------------------------
+   Validation JS : bordures colorées
+   Surcharge Bootstrap 5
+-------------------------------- */
+.form-control.is-invalid {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.form-control.is-valid {
+    border-color: #28a745 !important;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+}

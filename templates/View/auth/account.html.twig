@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% form_theme formAccount 'bootstrap_4_layout.html.twig' %}
+{% form_theme formAccount 'bootstrap_5_layout.html.twig' %}
 
 {% block body %}
 
@@ -14,37 +14,71 @@
             {% endif %}
         </h1>
 
-        {{ form_start(formAccount, {'attr': {'id': 'userForm'}}) }}
+        {{ form_start(formAccount, {'attr': {'id': 'userForm', 'novalidate': 'novalidate'}}) }}
 
-        {{ form_row(formAccount.username, {'attr': {'placeholder': 'login', 'readonly': editMode}}) }}
+        {{ form_row(formAccount.username, {
+            'label': "Nom d'utilisateur",
+            'attr': {
+                'placeholder': 'login',
+                'readonly': editMode
+            }
+        }) }}
+
+        <div id="noError" hidden class="alert alert-danger">
+            Le login existe déjà !
+        </div>
 
         {% if not editMode %}
-            {{ form_row(formAccount.password) }}
 
-            <div class="form-group">
-                <label for="confirmPassword">Repeat password</label>
-                <input type="password" class="form-control" id="confirmPassword">
+            {{ form_row(formAccount.password, {
+                'label': 'Mot de passe'
+            }) }}
+
+            <div id="passwordMatches" hidden class="alert alert-danger">
+                1 majuscule, 1 caractère spécial et 8 caractères minimum
             </div>
+
+            {{ form_row(formAccount.confirm_password, {
+                'label': 'Confirmer mot de passe'
+            }) }}
+
+            <div id="passwordError" hidden class="alert alert-danger">
+                Les passwords doivent être identiques
+            </div>
+
         {% endif %}
 
-        {{ form_row(formAccount.mail, {'attr': {'placeholder': 'xxx@mail.com'}}) }}
+        {{ form_row(formAccount.mail, {
+            'label': 'Email',
+            'attr': {
+                'placeholder': 'xxx@mail.com'
+            }
+        }) }}
 
         {% if editMode and idRole > 1 %}
-            {{ form_row(formAccount.role, {'attr': {'disabled': 'disabled'}}) }}
+            {{ form_row(formAccount.role, {
+                'label': 'Fonction',
+                'attr': {'disabled': 'disabled'}
+            }) }}
         {% else %}
-            {{ form_row(formAccount.role) }}
+            {{ form_row(formAccount.role, {
+                'label': 'Fonction'
+            }) }}
         {% endif %}
 
-        <button id="formUserSubmit" class="btn btn-success">
-            {% if editMode %}
-                Modifier
-            {% else %}
-                Enregistrer
-            {% endif %}
+        <button id="formUserSubmit" class="btn btn-success" {% if not editMode %}disabled{% endif %}>
+            {% if editMode %} Modifier {% else %} Enregistrer {% endif %}
         </button>
 
         {{ form_end(formAccount) }}
 
     </div>
 
+{% endblock %}
+
+{% block javascripts %}
+    {% if not editMode %}
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="{{ asset('js/listener.js') }}"></script>
+    {% endif %}
 {% endblock %}

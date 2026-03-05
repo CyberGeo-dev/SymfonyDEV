@@ -2,18 +2,19 @@
 
 namespace App\Controller\Auth;
 
-use App\Entity\Users;
 use App\Entity\Role;
+use App\Entity\Users;
+use App\Form\UserType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 class UsersController extends AbstractController
 {
@@ -24,61 +25,76 @@ class UsersController extends AbstractController
         EntityManagerInterface $entityManager,
         SessionInterface $session
     ): Response {
-
         $update = false;
 
+        $filter        = $session->get('filter') ?? [];
+        $idRoleSession = $filter['idRole'] ?? null;
+        $idUserSession = $filter['idUser'] ?? null;
+
+        // -------------------------
+        // MODE EDIT
+        // -------------------------
         if ($request->attributes->get('_route') === 'account-edit') {
 
-            $filter = $session->get('filter');
-            $idRoleUser = $filter['idRole'];
-            $idUser = $filter['idUser'];
+            $idToEdit = (int) $request->attributes->get('id');
 
-            if ($idRoleUser == 1 || $idUser == $request->attributes->get('id')) {
+            if ($idRoleSession == 1 || $idUserSession == $idToEdit) {
 
-                $user = $entityManager
-                    ->getRepository(Users::class)
-                    ->find($request->attributes->get('id'));
+                $user = $entityManager->getRepository(Users::class)->find($idToEdit);
+
+                if (!$user) {
+                    return $this->redirectToRoute('index');
+                }
+
+                $update = true;
 
             } else {
                 return $this->redirectToRoute('index');
             }
 
-            $update = true;
-
         } else {
+            // -------------------------
+            // MODE NEW
+            // -------------------------
             $user = new Users();
         }
 
-        $userForm = $this->createFormBuilder($user)
-            ->add('username', TextType::class)
-            ->add('password', PasswordType::class)
-            ->add('mail', EmailType::class)
-            ->add('role', EntityType::class, [
-                'class' => Role::class,
-                'choice_label' => 'name',
-            ])
-            ->getForm();
-
+        // =========================
+        // VALIDATION GROUPS (le point clé)
+        // =========================
         if ($update) {
+            $userForm = $this->createForm(UserType::class, $user, [
+                'validation_groups' => ['Default'],
+            ]);
+
             $userForm->remove('password');
+            $userForm->remove('confirm_password');
+        } else {
+            $userForm = $this->createForm(UserType::class, $user, [
+                'validation_groups' => ['registration'],
+            ]);
         }
 
         $userForm->handleRequest($request);
 
         if ($userForm->isSubmitted() && $userForm->isValid()) {
 
+            /** @var Users $user */
             $user = $userForm->getData();
 
             if (!$update) {
-                $passHashed = password_hash($user->getPassword(), PASSWORD_BCRYPT);
+                // Hash du mot de passe (en création)
+                $passHashed = password_hash((string) $user->getPassword(), PASSWORD_BCRYPT);
                 $user->setPassword($passHashed);
-            } else {
-                $filter = $session->get('filter');
-                $idRole = $filter['idRole'];
 
-                if ($user->getRole() == null) {
+                // Optionnel : vider confirm_password
+                $user->setConfirmPassword(null);
+
+            } else {
+                // Si role disabled => revient null => on remet le role de session
+                if ($user->getRole() === null && $idRoleSession) {
                     $user->setRole(
-                        $entityManager->getRepository(Role::class)->find($idRole)
+                        $entityManager->getRepository(Role::class)->find($idRoleSession)
                     );
                 }
             }
@@ -92,6 +108,35 @@ class UsersController extends AbstractController
         return $this->render('View/auth/account.html.twig', [
             'formAccount' => $userForm->createView(),
             'editMode'    => $update,
+            'idRole'      => $idRoleSession,
         ]);
+    }
+
+    #[Route('/account/check', name: 'check', methods: ['POST'])]
+    public function checkUserExist(
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): JsonResponse {
+        $username = (string) $request->request->get('username', '');
+
+        $user = $entityManager
+            ->getRepository(Users::class)
+            ->findOneByLowerUsername($username);
+
+        $encoders    = [new JsonEncoder()];
+        $normalizers = [new ObjectNormalizer()];
+        $serializer  = new Serializer($normalizers, $encoders);
+
+        $json = $serializer->serialize(
+            $user,
+            'json',
+            [
+                'circular_reference_handler' => function ($object) {
+                    return $object->getId();
+                }
+            ]
+        );
+
+        return new JsonResponse($json, 200, [], true);
     }
 }
